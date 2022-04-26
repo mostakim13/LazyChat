@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Subcategory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
 
 
@@ -116,5 +117,38 @@ class ProductController extends Controller
             'alert-type' => 'success'
         );
         return Redirect()->back()->with($notification);
+    }
+
+    public function search()
+    {
+        $search_text = $_GET['query'];
+
+        // $products = DB::table('products')
+        //     ->select('products.*', 'categories.*', 'subcategories.*')
+        //     ->join('categories', 'categories.id', '=', 'products.category_id')
+        //     ->join('subcategories', 'subcategories.id', '=', 'products.subcategory_id')
+        //     ->where("products.title", "LIKE", "%" . $search_text . "%")
+        //     ->orWhere("products.price", "LIKE", "%" . $search_text . "%")
+        //     ->orWhere("products.categories.title", "LIKE", "%" . $search_text . "%")
+        //     ->orWhere("products.subcategories.title", "LIKE", "%" . $search_text . "%")
+        //     ->get();
+        $products = Product::with('Category')->with('Subcategory')->where("title", "LIKE", "%" . $search_text . "%")
+            ->orWhere("price", "LIKE", "%" . $search_text . "%")
+            ->orWhereHas('category', function ($q) use ($search_text) {
+                $q->where(function ($q) use ($search_text) {
+                    $q->where('title', 'LIKE', '%' . $search_text . '%');
+                });
+            })
+            ->orWhereHas('subcategory', function ($q) use ($search_text) {
+                $q->where(function ($q) use ($search_text) {
+                    $q->where('title', 'LIKE', '%' . $search_text . '%');
+                });
+            })
+            ->orWhere('title', "LIKE", "%" . $search_text . "%")
+            ->orWhere("subcategory_id", "LIKE", "%" . $search_text . "%")
+            ->get();
+
+
+        return view('admin.product.index', compact('products'));
     }
 }

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Auth::routes();
@@ -39,6 +39,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['admin', 'auth'], 'namespace
     Route::post('product/thumbnail/update', [ProductController::class, 'thumbnailUpdate'])
         ->name('update-product-thumbnail');
     Route::get('/product-delete/{product_id}', [ProductController::class, 'delete']);
+
+    Route::get('/search', [ProductController::class, 'search']);
 });
 
 
