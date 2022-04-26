@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('category_id');
             $table->integer('subcategory_id');
             $table->string('price');
-            $table->string('thumbnail');
+            $table->string('thumbnail')->nullable();
             $table->timestamps();
         });
     }
